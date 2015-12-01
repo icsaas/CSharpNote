@@ -1,0 +1,22 @@
+<html>
+<head>
+<title></title>
+</head>
+<body>
+<script>
+var str='{"name":"xx","age":"23"}';
+var jsonstr=JSON.parse(str);
+alert(jsonstr);
+var a = {1:1,b:2}
+var stra=JSON.stringify(a);
+alert(stra);
+
+//console undefined solution
+window.console = window.console || (function(){ 
+var c = {}; c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function(){}; 
+return c; 
+})(); 
+
+</script>
+</body>
+</html>
