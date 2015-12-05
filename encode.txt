@@ -1,0 +1,26 @@
+网页编码：<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+asp编码：<%@ codepage=936%>简体中文
+<%@ codepage=950%>繁体中文
+<%@ codepage=65001%>UTF-8797000024 
+<%@LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
+gb2312的页面加
+<%@LANGUAGE="VBSCRIPT" CODEPAGE="936"%>
+<%Session.CodePage=936%>
+utf-8的页面加
+<%@LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
+<%Session.CodePage=65001%>
+　　
+　　其中936和65001分别代表的是gb2312和utf-8，还有一些我们不常用的，比如
+　　950 繁体中文
+　　437 美国/加拿大英语
+　　932 日文
+　　949 韩文
+　　866 俄文
+
+数据库编码：
+nvarchar utf-8
+n大头的utf-8？
+alter database 数据库名称 collate Chinese_PRC_CI_AS
+
+http://bbs.csdn.net/topics/390745220
+三码合一
