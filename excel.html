@@ -1,0 +1,53 @@
+<html><head><title>Excel Test</title>  
+<script language="javascript">  
+function readEx() {  
+var ExcelSheet ;  
+var wb;  
+try {  
+   ExcelSheet      = new ActiveXObject("Excel.Application");  
+   alert(ExcelSheet .Version);  
+   wb = ExcelSheet.Workbooks.open("http://10.1.1.143:8080/canon_sample/data/test.xls");  
+   var objsheet =   wb.Worksheets("Sheet1");  
+   var v = objsheet.cells(1,1);  
+   alert("cells(1,1) = " + v);  
+   ExcelSheet.Save();  
+// read end   使EXCEL窗口可见  
+   ExcelSheet.Visible = true;  
+} catch(e) {  
+if (ExcelSheet != undefined){  
+   alert('Error happened : ' + e);  
+   ExcelSheet.Quit();  
+}  
+   return '';  
+}  
+}  
+function writeEx() {  
+var ExcelSheet ;  
+var wb;  
+try {  
+   ExcelSheet      = new ActiveXObject("Excel.Application");  
+   ExcelSheet.Visible = true;  
+   ExcelSheet.Workbooks.Add();  
+   ExcelSheet.ActiveSheet.Cells(1,1).Value = "This is column A, row 1";  
+   ExcelSheet.SaveAs("c:\\TEST.XLS");  
+   ExcelSheet.Quit();  
+}  
+catch(e) {  
+     if (ExcelSheet != undefined){  
+   alert('Error happened : ' + e);  
+   ExcelSheet.Quit();  
+}  
+   return '';  
+}  
+}  
+</script>  
+</head>  
+<body>  
+<b>  
+Excel Test  
+</b>  
+<br><br>  
+<input type="button" onclick="readEx();" value=" Read "/>  
+<input type="button" onclick="writeEx();" value=" Write "/>  
+</body>  
+</html> 
