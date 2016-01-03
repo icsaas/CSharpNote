@@ -1,0 +1,60 @@
+
+1. 前言 
+报表打印通常是管理信息系统中的一个重要模块，而Excel凭借它功能强大、应用灵活、通用性强等的优势在报表打印中获得了广泛的应用。 
+最初的管理信息系统基本上是采用客户机/服务器（C/S）模式开发的，但随着WWW的广泛应用，目前的管理信息系统已经逐渐开始从C/S模式向浏览器/服务器（B/S）模式转变。B/S模式具有传统C/S模式所不及的很多特点，如更加开放、与软硬件无关、应用扩充和系统维护升级方便等等，目前已成为企业网上首选的计算模式，原先在C/S下的很多软件都开始移植到B/S模式下。由于B/S模式的特殊性，在C/S下相对较易实现的Excel报表打印功能在B/S下却成为一个难点。本文根据在实际的项目中总结的经验，以ASP为例，给出了一个较好的通用方法。 
+2. 功能实现 
+为了说明问题，这里举一个例子。系统平台是Windows 2000+SQL Server 2000+IIS 5.0+ASP 3，报表采用的是Excel，要求按照给定的报表格式生成图书销售统计的报表，并能够打印。 
+2.1 Excel报表模板的制作 
+首先根据给定的报表格式，制作一个Excel模板（就是要打印的报表的表格），当然其中需要从数据库中动态统计生成的数据留着空白。这个报表先在Excel中画好，然后保存为模板，存放在起来，这里为\test\book1.xlt。 
+2.2 Excel报表的生成与打印 
+这里采用了Excel的Application组件，该组件在安装Excel时安装到系统中。我们的操作也都是针对该组件。 
+(1) 建立Excel.Application对象 
+set objExcel=CreateObject("Excel.Application") 
+(2) 打开Excel模板 
+objExcel.Workbooks.Open(server.mappath("\test")&"\book1.xlt") '打开Excel模板 
+objExcel.Sheets(1).select '选中工作页 
+set sheetActive=objExcel.ActiveWorkbook.ActiveSheet  
+(3) Excel的常规添加操作 
+例如sheetActive.range("g4").value=date() ‘这里添加的是时间，当然也可以是你指定的任何数据 
+(4) Excel中添加数据库中的纪录 
+这里假设已有一个数据集adoRset，存放由Sql操作生成的统计数据。 
+num=7 ‘从Excel的第七行开始 
+do until adoRset.EOF ‘循环直至数据集中的数据写完 
+strRange="d"&num&":f"&num ‘设定要填写内容的单元区域 
+sheetActive.range(strRange).font.size=10 ‘设定字体大小 
+sheetActive.range(strRange).WrapText=false ‘设定文字回卷 
+sheetActive.range(strRange).ShrinkToFit=true ‘设定是否自动适应表格单元大小 
+sheetActive.range(strRange).value=array(adoRset("bookid"),adoRset("bookname"),adoRset("author")) ‘把数据集中的数据填写到相应的单元中 
+num=num+1 
+adoRset.MoveNext 
+loop 
+(5) Excel临时报表文件的保存及处理 
+实际运行中应该注意每次一个用户进行报表打印时都采用一个临时的Excel文件，而不是硬性规定文件名，因为如果用固定的文件名的话，只有第一次生成是成功的，后面的操作都会因为已存在同名文件而导致失败。所以我们需要每次都产生一个临时的而且不重复的文件名，这里可以采用自定义的getTemporaryFile()函数由来生成，然后存放在变量filename中,用变量filepos表示这些临时文件的路径。 
+此外如果这些临时文件不处理的话久而久之会成为文件垃圾，因此在每个用户提交Excel报表打印请求时要先删除临时目录下所有原先产生的临时打印文件。 
+临时文件的处理主要代码如下： 
+function getTemporaryFile(myFileSystem)  
+dim tempFile,dotPos 
+tempFile=myFileSystem.getTempName 
+dotPos=instr(1,tempFile,".") 
+getTemporaryFile=mid(tempFile,1,dotPos)&"xls" 
+end function  
+set myFs=createObject("scripting.FileSystemObject") 
+filePos=server.mappath("\test") & "\tmp\" '要存放打印临时文件的临时目录 
+fileName=getTemporaryFile(myFs) '取得一个临时文件名 
+myFs.DeleteFile filePos&"*.xls" '删除该目录下所有原先产生的临时打印文件 
+set myFs=nothing 
+Excel临时文件的保存代码为： 
+objExcel.ActiveWorkbook.saveas filePos&filename  
+(6) 退出Excel应用 
+objExcel.quit 
+set objExcel=Nothing 
+(7) Excel报表的打印 
+前面的步骤已经生成了Excel报表，下一步进行打印，采用的策略可以有两种： 
+方案一：提供上面生成的Excel报表临时文件链接给用户，用户可以直接点击在浏览器中打开Excel报表并通过浏览器的打印功能进行打印，也可以点击右键然后另存到本地后再作打印等相关处理。 
+方案二：生成Excel报表后直接在客户端加载到浏览器，当然在没有完全加载时应该提示“正在加载，请等待”等字样。 
+2.3 系统配置与注意事项 
+虽然以上代码很简单，但实际应用不当经常会出现错误，所以下面要讲到的系统配置和注意事项非常关键。 
+(1) 千万要保证以上代码输入的正确性，否则一旦运行错误，Excel对象会滞留内存，难以消除，导致下一次调用时速度狂慢，并产生内存不可读写的Windows错误。这时的解决方法就是注销当前用户，如果还不行，就只能Reset了。 
+(2) 一定要设置好负责打印功能的asp文件的权限。方法是：在IIS管理中，选择该asp文件，右键然后选“属性”/“文件安全性”/"匿名访问和验证控制“，在这里IIS默认是匿名访问，应该选择验证访问（这里基本验证和集成Windows验证两种方式均可，但前者不够安全），这一点无比重要，否则应用当中会出错的。 
+(3) 有的时候报表分为多页，而且我们希望每一页有相同的表头，要求表头每页都自动打印，可以在Excel模板中进行设置。方法如下：选择菜单"文件"/"页面设置"/"工作表"，然后在"顶端标题行"输入你表头的行数(如：表头为1-3行即填入：$1：$3)。 
+  
