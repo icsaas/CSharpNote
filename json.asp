@@ -1,3 +1,4 @@
+'http://demon.tw/my-work/vbs-json.html
 <%@LANGUAGE="VBSCRIPT" CODEPAGE="65001"%>
 <!--#include file="json.asp"-->
 <!--#include file="inc/Conn.asp" -->
