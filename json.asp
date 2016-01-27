@@ -31,3 +31,26 @@ v=i.toJson("result",rs,false)
 rs.close
 response.write v
 %>
+
+"""$(function (){
+     $.ajax({
+         url:"json.asp",
+         dataType:'json',
+         async:true, 
+         type:'get',
+         success:function(data){
+           alert(data.a);
+         },
+         error:function(XMLHttpRequest, textStatus, errorThrown) {
+           alert(errorThrown);
+         }});
+})"""
+<%
+username="tom"
+sex="男"
+age="18"
+'response.write "姓名："+username +"<br/>"+"性别："+sex +"<br/>"+"年龄："+age
+response.write "{""a"":" & username & ",""b"":" & sex & ",""c"":" & age & "}"
+%>
+
+
