@@ -1,0 +1,169 @@
+asp实现无组件上传文件  此博文包含图片	(2012-06-21 15:23:07)转载▼
+标签： 无组件上传 二进制 表单 文件结构 上传 杂谈 	分类： 网络编程心得
+一、上传网页
+   asp实现无组件上传文件
+　　上传页面代码：
+    <form   action="upload.asp"   method="post"   enctype="multipart/form-data"   name="form1">   
+       <input   type="file"   name="file">   
+       <input   type="submit"   name="Submit"   value="提交">   
+    </form>  
+　　说明：
+　　①在form中必须使用属性“enctype="multipart/form-data"”，一旦使用该属性，表单的值就不能使用Request.Form或Request.QueryString来接收表单组件的内容了。因为表单会以二进制流的形式提交，而不是文本。如果需要获取上传的文件，就必须使用Request对象的BinaryRead方法来读取。
+　　②必须使用“<input   type="file"   name="file">”。
+ 
+二、二进制流文件结构介绍
+　　要编写无组件上传文件程序，必须要搞清楚经过表单发送过来的文件的结构。
+　　1）第一部分（起始标志）
+　　-----------------------------7dc18645076a
+　　2）第二部分（文件说明）
+    Content-Disposition: form-data; name="file1"; filename="E:\U盘备份(09年上)\08春期理工责任教师表.doc" Content-Type: application/msword
+　　在此，我们可以获得上传文件的文件名称及绝对路径，也可以获得文件类型。这些信息是正确保存文件所不可缺少的。
+　　3）第三部分（文件内容）
+　　即文件的二进制内容，略。
+　　4）第四部分（结束标志）
+    -----------------------------7dc18645076a
+    说明：而且每一个部分都是用回车换行符号来进行分隔的。第一部分和第四部分标志每次上传都是不一样的，起到了分隔符的作用。（多文件上传的时候很有作用的）。在asp中可以通过Request.ServerVariables("HTTP_CONTENT_TYPE")来获取，例如上例中HTTP_CONTENT_TYPE内容为："multipart/form-data; boundary=-----------------------------7dc18645076a"，有了这个，我们不仅可以判断客户端的form中有无使用enctype="multipart/form-data"(如果没有使用，那么下面就没必要执行啦)，还可以获取边界值boundary=-----------------------------7dc18645076a"。（注意：这里获取的边界值比上面的边界值开头要少"--"，最好补充上。）  
+　　例：以上传一个文本文件为例。　
+　　显示文件结构的程序：
+　　<%
+　　　Dim filesize, filedata, PostData
+　　　filesize = Request.TotalBytes
+　　　filedata = Request.BinaryRead(filesize)
+　　　PostData = BinaryToString(filedata,filesize)
+　　　Response.Write "<pre>" & PostData & "</pre>" '使用pre，原样输出格式
+　　　' 借助RecordSet将二进制流转化成文本
+　　　Function BinaryToString(biData,Size) 
+　　　　　Const adLongVarChar = 201
+　　　　　Set RS = createObject("ADODB.Recordset")
+　　　　　RS.Fields.Append "mBinary", adLongVarChar, Size
+　　　　　RS.Open
+　　　　　RS.AddNew
+　　　　　RS("mBinary").AppendChunk(biData)
+　　　　　RS.update
+　　　　　BinaryToString = RS("mBinary").Value
+　　　　　RS.Close
+　　　End Function 
+　　%>
+　　显示结果：  　　
+-----------------------------7dc37a225076a
+Content-Disposition: form-data; name="file"; filename="E:\U盘备份(09年上)\C++语言程序设计.txt"
+Content-Type: text/plain
+
+《C++语言程序设计》是成人专科中计算机信息管理和机械制造与自动化等专业的一门选修课。 开设本课程的目的，是使学生掌握一门高级程序设计语言，了解面向对象程序设计的基本概念与方法，进而学会利用C++语言解决一般应用问题，并为后续的专业课程奠定程序设计基础。
+
+-----------------------------7dc37a225076a
+Content-Disposition: form-data; name="Submit"
+提交
+-----------------------------7dc37a225076a--
+三、获取上传文件名
+　　了解了经过表单发送过来的文件的结构后，首先需要从第二部分数据的"filename"中获得文件名称，然后需要正确定位文件的起始位置，最后利用ASP技术将二进制文件用本来的文件名保存即可。
+　　⑴预备函数（将二进制串转化成字符串）  
+　　上传文件的内容不需要经过二进制向字符串的转换过程，直接保存就可。但是，若需提取文本框内容或文件的名称，就必须进行转换。因此，需要编写一个通用的，并且适用于汉字的转换函数。以下是该函数代码：
+　　Function BtoS (bstr)  
+　　  If not IsNull(bstr) Then  
+　　      for i = 0 to lenb(bstr) - 1  
+　　         bchr = midb(bstr,i+1,1)  
+　　         If ascb(bchr)〉127 Then  
+　　            temp = temp&chr(ascw(midb(bstr, i+2, 1)&bchr))  
+　　            i = i+1  
+　　         Else  
+　　            temp = temp&chr(ascb(bchr))  
+　　         End If  
+　　      next  
+　　   End If  
+　　   BtoS = temp  
+　　End Function
+　　⑵ 获得文件名内容 
+　　filesize = Request.TotalBytes             'filesize是上传文件的大小
+　　filedata = Request.BinaryRead(filesize)   'filedata是上传文件的二进制数据
+　　newline=chrB(13)&chrB(10)                 'newline表示二进制的回车符
+　　delimiter=leftB(filedata,clng(instrb(filedata,newline))-1)         'delimiter是分割符
+　　n1=clng(instrb(filedata,newline))+2         '获取第二部分的开始位置n1
+　　n2=clng(instrb(n1,filedata,newline))        '获取第二部分中上传文件名行的结束位置n2
+　　filenames=BtoS(midB(filedata,n1,n2-n1))     '获取第二部分中上传文件名行的文本内容
+　　n3=instrrev(filenames,"\")                  '获取上传文件名的开始位置
+　　filename=mid(filenames,n3+1,len(filenames)-n3-1)  '获取上传文件名（不含路径）
+四、获取上传文件内容的起始位置
+　　上传文件内容的开始位置是在第四个回车符之后，而结束位置在第二个分隔符"delimiter"开始位置之前，但上传文件内容和分隔符之间用回车符分隔，所以上传文件内容的最后一个字符应该是第二个分隔符"delimiter"的开始位置-3。
+　　程序代码如下：
+　　beginpos=clng(instrb(n2+1,filedata,newline))  '获取第三个回车符的第一个字符位置
+　　beginpos=clng(instrb(beginpos+1,filedata,newline))+1   '获取文件内容第一个字符之前的位置
+    endpos=clng(instrb(lenb(delimiter),filedata,delimiter))-3  '获取文件内容中最后一个字符的位置
+五、文件上传
+　　上传文件必须要创建两个（或多个）STREAM对象，其中一个为源数据流，即接收初始的二进制数据；另一个为目的数据流，即接收来自经源数据流处理后的数据，并最终保存为所需的文件。
+ 　　程序代码如下：
+     set str_c=server.CreateObject("ADODB.Stream")   '创建一个ADODB.Stream对象，str_c为源数据流  
+     str_c.Mode=3   '设置打开模式，3为可读可写  
+     str_c.Type=1   '设置数据类型，1为二进制数据  
+     str_c.Open     '打开对像
+     set  desc=server.CreateObject("ADODB.Stream")   '创建一个ADODB.Stream对象，desc为目标数据流  
+     desc.Mode=3    
+     Desc.Type=1    
+     desc.Open  
+     SaveFile = Server.MapPath("upload\" & filename)     '获取保存文件路径及文件名 
+     str_c.Write filedata                '将指定的二进制数据流装入对像str_c中  
+     str_c.position=beginpos             'position指出文件的开始位置  
+     str_c.copyto  desc,endpos-beginpos  'endpos-beginpos是文件的长度
+     desc.SaveToFile SaveFile,2          '以SaveFile指定的路径及名称保存文件   
+     '完成后，应关闭并释放STEAM对象
+     Desc.Close    
+     Set desc=nothing  
+     str_c.Close    
+     Set str_c=nothing  
+     Response.write "文件上传成功!"
+六、总结
+　　上述分析用asp上传一个文件的基本原理和过程，实际编程中必须对上述程序进行修改和完善。比如，如何限制上传文件类型？如何限制上传文件的大小？检查上传文件夹是否存在（不存在则创建文件夹）？检查上传文件是否存在（不存在，则重命名上传文件）？如何跟踪文件上传进度？上传文件过程中出现错误如何处理？等等这些问题都需要编程解决。
+　　下面给出上述程序的完整代码（文件名：upload.asp）
+   <%
+   SavePath = "upload"          '保存路径
+   filesize = Request.TotalBytes             'filesize是上传文件的大小
+   filedata = Request.BinaryRead(filesize)   'filedata是上传文件的二进制数据
+   newline=chrB(13)&chrB(10)                 'newline表示二进制的回车符
+   delimiter=leftB(filedata,clng(instrb(filedata,newline))-1)         'delimiter是分隔符
+   n1=clng(instrb(filedata,newline))+2         '获取第二部分的开始位置n1
+   n2=clng(instrb(n1,filedata,newline))        '获取第二部分中上传文件名行的结束位置n2，即第二个回车符的第一个字符
+   filenames=BtoS(midB(filedata,n1,n2-n1))     '获取第二部分中上传文件名行的文本内容
+   n3=instrrev(filenames,"\")                  '获取上传文件名的开始位置
+   filename=mid(filenames,n3+1,len(filenames)-n3-1)  '获取上传文件名（不含路径）
+   '下面开始取得文件内容开始的位置,第四个回车符后的第一个字符 
+   beginpos=clng(instrb(n2+1,filedata,newline))  '获取第三个回车符的第一个字符位置
+   beginpos=clng(instrb(beginpos+1,filedata,newline))+1   '获取文件内容第一个字符之前的位置
+   
+   '取得文件内容结束的位置,第二个分隔符"delimiter"开始的前一个二进制字符  
+   endpos=clng(instrb(lenb(delimiter),filedata,delimiter))-3  '获取文件内容中最后一个字符的位置
+   set str_c=server.CreateObject("ADODB.Stream")   '创建一个ADODB.Stream对象，str_c为源数据流  
+   str_c.Mode=3   '设置打开模式，3为可读可写  
+   str_c.Type=1   '设置数据类型，1为二进制数据  
+   str_c.Open     '打开对像
+   set  desc=server.CreateObject("ADODB.Stream")   '创建一个ADODB.Stream对象，desc为目标数据流  
+   desc.Mode=3    
+   Desc.Type=1    
+   desc.Open  
+   SaveFile = Server.MapPath(SavePath & "\" & filename)     '获取保存文件路径及文件名 
+   str_c.Write filedata                '将指定的二进制数据流装入对像str_c中  
+   str_c.position=beginpos             'position指出文件的开始位置  
+   str_c.copyto  desc,endpos-beginpos  'endpos-beginpos是文件的长度
+   desc.SaveToFile SaveFile,2          '以SaveFile指定的路径及名称保存文件  
+ 
+   '完成后，应关闭并释放STEAM对象
+   Desc.Close    
+   Set desc=nothing  
+   str_c.Close    
+   Set str_c=nothing  
+   Response.write "文件上传成功!"
+   '将二进制转换成文本
+   Function BtoS (bstr) 
+     If not IsNull(bstr) Then 
+         for i = 0 to lenb(bstr) - 1 
+            bchr = midb(bstr,i+1,1) 
+            If ascb(bchr)>127 Then 
+               temp = temp&chr(ascw(midb(bstr, i+2, 1)&bchr)) 
+               i = i+1 
+            Else 
+               temp = temp&chr(ascb(bchr)) 
+            End If 
+         next 
+      End If 
+      BtoS = temp 
+   End Function 
+   %>
