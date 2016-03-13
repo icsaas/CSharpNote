@@ -8,6 +8,8 @@
 //http://www.111cn.net/wy/jquery/53783.htm
 //http://blog.sina.com.cn/s/blog_5d64f7e3010127ns.html
 //http://blog.sina.com.cn/s/blog_62c1dc5f01014uqd.html
+//http://www.ttkc.net/knowlage/506.htm 
+//https://github.com/crab1127/crab/blob/7ae9549276f64416b62476a0f03102ddf333e0f2/js/framework/widget/uploader.js
 //http://zhidao.baidu.com/link?url=Tbg5w45FmHEv9UvR90I4GapAvkW2bM1K4vIluVRMTFm3WUmKXZ4rG2sGIymLG6gmDam71btX_Tt3IGhAlEJUna
 <img width=100 height=100 src="data:image/gif;base64,（此处填图片转成base64编码后的编码）"/>
 ssl原理
