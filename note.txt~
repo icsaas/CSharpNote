@@ -1027,4 +1027,3 @@ function EncodeUtf8(str : String):String {
         }
     }
 </script>
-mstsc /console /v:192.168.X.X
