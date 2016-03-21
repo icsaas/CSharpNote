@@ -298,3 +298,5 @@ namespace VeryCodes.Common
         }
     }
 }
+
+//²Î¿¼£ºhttp://www.jb51.net/article/46536.htm
