@@ -1030,3 +1030,12 @@ function EncodeUtf8(str : String):String {
 mstsc /console /v:192.168.X.GiX
 
   在IIS的 HTTP Response Headers 中添加一行, 名字为: p3p, 值设置为: CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
+<script language=”javascript”>
+if(top.location!==self.location){
+WarningTxt1 = “该网页版权归邻部落所有”;
+WarningTxt2 = “马上离开山寨网站，进入官网！”;
+alert(WarningTxt1);
+alert(WarningTxt2);
+top.location.href=self.location.href;
+}
+</script>

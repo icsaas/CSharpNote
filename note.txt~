@@ -1027,4 +1027,6 @@ function EncodeUtf8(str : String):String {
         }
     }
 </script>
-mstsc /console /v:192.168.X.X
+mstsc /console /v:192.168.X.GiX
+
+  在IIS的 HTTP Response Headers 中添加一行, 名字为: p3p, 值设置为: CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"
