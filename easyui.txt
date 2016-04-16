@@ -1,0 +1,11 @@
+function del(){
+      var rows = $('#tt').datagrid("getSelections"); 
+     var copyRows = [];
+        for ( var j= 0; j < rows.length; j++) {
+        copyRows.push(rows[j]);
+        						}
+     for(var i =0;i<copyRows.length;i++){    
+            var index = $('#tt').datagrid('getRowIndex',copyRows[i]);
+            $('#tt').datagrid('deleteRow',index); 
+        }
+}

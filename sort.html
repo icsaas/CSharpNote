@@ -1,0 +1,60 @@
+<style>
+#field{width:500px;height:510px;background:black;position:relative}
+.bar{position:absolute;bottom:0;background:orange;border:1px solid brown;width:48px}
+</style>
+
+<div id=field>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+  <div class=bar></div>
+</div>
+
+<script>
+!function(d){
+
+  var bars = [].slice.call(d.querySelectorAll('.bar'));
+  var arr = [8, 10, 3, 5, 6, 9, 2, 4, 7, 1];
+  var state = [];
+
+  var draw = function(){
+    var bar, s;
+    s = state.shift() || [];
+    for(bar in bars){
+      bars[bar].style.height = 50 * s[bar];
+      bars[bar].style.left = 50 * bar;
+    }
+  }
+
+  var sort = function(arr){
+    for(var i = 0; i < arr.length; i++){
+      for(var j = 0; j < arr.length - i - 1; j++){
+        if(arr[j] > arr[j+1]){
+          arr[j]   = arr[j] + arr[j+1];
+          arr[j+1] = arr[j] - arr[j+1];
+          arr[j]   = arr[j] - arr[j+1];
+          state.push(JSON.parse(JSON.stringify(arr)));
+        }
+      }
+    }
+  }
+
+  sort(arr);
+  setInterval(draw, 500);
+
+}(document)
+</script>
+
+作者：Vkki
+链接：https://www.zhihu.com/question/41642706/answer/92621185
+来源：知乎
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+创客：
+http://www.thingiverse.com/thing:17175
+instructable
