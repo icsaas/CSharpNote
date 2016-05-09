@@ -1,0 +1,17 @@
+<SCRIPT LANGUAGE="JavaScript">
+<!--
+var x= new ActiveXObject("Msxml2.XMLHTTP.6.0");
+x.onreadystatechange=function(){
+    if(x.readyState<4)return;
+    var xml_dom = new ActiveXObject("MSXML2.DOMDocument"); 
+    var tmpNode = xml_dom.createElement("tmpNode"); 
+    tmpNode.dataType = "bin.base64"; 
+    tmpNode.nodeTypedValue = x.responseBody; 
+    base64string=tmpNode.text.replace(/\n/g,"");
+    document.write("<img src=\"data:image/bmp;base64,"+base64string+"\">")
+
+}
+x.open("get","http://www.blogjava.net/images/blogjava_net/emu/1359/o_emu120.jpg",true);
+x.send("");
+//-->
+</SCRIPT>
