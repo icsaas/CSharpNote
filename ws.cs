@@ -8,4 +8,6 @@
        <add name="Documentation"/>
      </protocols>
     </webService>
+<identity impersonate="true"  userName="accountname" password="password" />
+
 </system.web>
