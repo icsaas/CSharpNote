@@ -9,3 +9,12 @@ function del(){
             $('#tt').datagrid('deleteRow',index); 
         }
 }
+parent.win.open({
+   title:"建档管理",
+   url:"",
+ width:"",
+height:"",
+modal:true,
+maximizable:true,
+maximized:true
+});
