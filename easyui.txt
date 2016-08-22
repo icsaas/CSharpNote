@@ -18,3 +18,51 @@ modal:true,
 maximizable:true,
 maximized:true
 });
+
+$('#test').window({  
+            width: 400,  
+            height: 400,  
+            top: ($(window).height() - options.height) * 0.5,  
+            left: ($(window).width() - options.width) * 0.5,  
+            iconCls: '',  
+            onMove: function (left, top) { // popwindow拖动时触发，限制弹出框拖动范围  
+                var parentObj = $(this).panel('panel').parent();  
+                var width = $(this).panel('options').width;  
+                var height = $(this).panel('options').height;  
+                var parentWidth = $("body").width();  
+                var parentHeight = $("body").height();  
+                var scrollLeft = document.body.scrollLeft;  
+                var scrollTop = document.body.scrollTop;  
+                // 当弹出框尺寸大于浏览器大小时，弹出框自动缩小为浏览器当前尺寸  
+                if (width > parentWidth)  
+                    $(this).window('resize', {  
+                        width: parentWidth - 1  
+                    });  
+                if (height > parentHeight)  
+                    $(this).window('resize', {  
+                        height: parentHeight - 1  
+                    });  
+                // 当弹出框被拖动到浏览器外时，将弹出框定位至浏览器边缘  
+                if (left < scrollLeft) {  
+                    $(this).window('move', {  
+                        left: scrollLeft  
+                    });  
+                }  
+                if (top < scrollTop) {  
+                    $(this).window('move', {  
+                        top: scrollTop  
+                    });  
+                }  
+                if (left > scrollLeft && left > parentWidth - width + scrollLeft) {  
+                    $(this).window('move', {  
+                        left: parentWidth - width + scrollLeft  
+                    });  
+                }  
+                if (top > scrollTop && top > parentHeight - height + scrollTop) {  
+                    $(this).window('move', {  
+                        top: parentHeight - height + scrollTop  
+                    });  
+                }  
+                  
+            },  
+})  
