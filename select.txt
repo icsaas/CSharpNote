@@ -1,0 +1,4 @@
+SELECT OrderID,(SELECT cast(ProductID AS NVARCHAR ) + ',' from [Order Details] 
+where OrderID = ord.OrderID
+FOR XML PATH('')) as productIDs
+from orders ord
