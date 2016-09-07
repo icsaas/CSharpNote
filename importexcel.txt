@@ -1,0 +1,6 @@
+
+解决的办法是改注册表
+如果是:Jet引擎. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Jet\4.0\Engines\Excel
+如果是:ACE引擎.
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\12.0\Access Connectivity Engine\Engines\Excel
+然后找到 TypeGuessRows这个项.默认为8的.修改为0.
